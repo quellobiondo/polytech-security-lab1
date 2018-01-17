@@ -5,28 +5,31 @@ import java.security.*;
 import javax.crypto.*;
 
 import java.io.*;
+import java.util.Arrays;
 
-public class SqueletonEntity{
+public class Entity {
+
+	private static final String ASYMMETRIC_ALGO = "RSA";
+	private static final String SIGN_ALGO = "SHA1withRSA";
+	private static final String MY_SIGN_DIGEST_ALGO = "SHA1";
+
 
 	// keypair
 	public PublicKey thePublicKey;
 	private PrivateKey thePrivateKey;
-	
+
 	/**
 	  * Entity Constructor
 	  * Public / Private Key generation
 	 **/
-	public SqueletonEntity(){
-		// INITIALIZATION
-
-		// generate a public/private key
+	public Entity(){
 		try{
-			// get an instance of KeyPairGenerator  for RSA	
-			// Initialize the key pair generator for 1024 length
-			// Generate the key pair
-			
-			// save the public/private key
-			
+			KeyPairGenerator kpg = KeyPairGenerator.getInstance (ASYMMETRIC_ALGO);
+			kpg.initialize(1024, new SecureRandom());
+			KeyPair kp = kpg.generateKeyPair();
+			this.thePublicKey = kp.getPublic();
+			this.thePrivateKey = kp.getPrivate();
+
 		}catch(Exception e){
 			System.out.println("Signature error");
 			e.printStackTrace();
@@ -42,12 +45,10 @@ public class SqueletonEntity{
 	public byte[] sign(byte[] aMessage){
 		
 		try{
-			// use of java.security.Signature
-			// Init the signature with the private key
-
-			// update the message
-			// sign
-			return null;
+			Signature signature = Signature.getInstance(SIGN_ALGO);
+			signature.initSign(this.thePrivateKey);
+			signature.update(aMessage);
+			return signature.sign();
 		}catch(Exception e){
 			System.out.println("Signature error");
 			e.printStackTrace();
@@ -66,12 +67,10 @@ public class SqueletonEntity{
 	  **/
 	public boolean checkSignature(byte[] aMessage, byte[] aSignature, PublicKey aPK){
 		try{
-			// use of java.security.Signature
-			// init the signature verification with the public key
-
-			// update the message
-			// check the signature
-			return false;
+			Signature signature = Signature.getInstance(SIGN_ALGO);
+			signature.initVerify(aPK);
+			signature.update(aMessage);
+			return signature.verify(aSignature);
 		}catch(Exception e){
 			System.out.println("Verify signature error");
 			e.printStackTrace();
@@ -89,14 +88,10 @@ public class SqueletonEntity{
 	public byte[] mySign(byte[] aMessage){
 		
 		try{
-			// get an instance of a cipher with RSA with ENCRYPT_MODE
-			// Init the signature with the private key
-
-			// get an instance of the java.security.MessageDigest with MD5
-			// process the digest
-			
-			// return the encrypted digest
-			return null;
+			Cipher cipher = Cipher.getInstance(ASYMMETRIC_ALGO);
+			cipher.init(Cipher.ENCRYPT_MODE, thePrivateKey);
+			MessageDigest md = MessageDigest.getInstance(MY_SIGN_DIGEST_ALGO);
+			return cipher.doFinal(md.digest(aMessage));
 			
 		}catch(Exception e){
 			System.out.println("Signature error");
@@ -116,15 +111,14 @@ public class SqueletonEntity{
 	  **/
 	public boolean myCheckSignature(byte[] aMessage, byte[] aSignature, PublicKey aPK){
 		try{
-			// get an instance of a cipher with RSA with ENCRYPT_MODE
-			// Init the signature with the private key
-			// decrypt the signature
-			
-			// get an instance of the java.security.MessageDigest with MD5
-			// process the digest
-			
-			// check if digest1 == digest2
-			return false;
+			Cipher cipher = Cipher.getInstance(ASYMMETRIC_ALGO);
+			cipher.init(Cipher.DECRYPT_MODE, aPK);
+			byte[] signed_digest = cipher.doFinal(aSignature);
+
+			MessageDigest md = MessageDigest.getInstance(MY_SIGN_DIGEST_ALGO);
+			byte[] message_digest = md.digest(aMessage);
+
+			return Arrays.equals(signed_digest, message_digest);
 
 		}catch(Exception e){
 			System.out.println("Verify signature error");
@@ -146,7 +140,10 @@ public class SqueletonEntity{
 			// get an instance of RSA Cipher
 			// init the Cipher in ENCRYPT_MODE and aPK
 			// use doFinal on the byte[] and return the ciphered byte[]
-			return null;
+			Cipher cipher = Cipher.getInstance(ASYMMETRIC_ALGO);
+			cipher.init(Cipher.ENCRYPT_MODE, aPK);
+
+			return cipher.doFinal(aMessage);
 			
 		}catch(Exception e){
 			System.out.println("Encryption error");
@@ -166,7 +163,9 @@ public class SqueletonEntity{
 			// get an instance of RSA Cipher
 			// init the Cipher in DECRYPT_MODE and aPK
 			// use doFinal on the byte[] and return the deciphered byte[]
-			return null;
+			Cipher cipher = Cipher.getInstance(ASYMMETRIC_ALGO);
+			cipher.init(Cipher.DECRYPT_MODE, thePrivateKey);
+			return cipher.doFinal(aMessage);
 			
 		}catch(Exception e){
 			System.out.println("Encryption error");
