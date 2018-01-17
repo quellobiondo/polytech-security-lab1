@@ -1,0 +1,41 @@
+<!-- Using http://ant.apache.org/manual/tutorial-HelloWorldWithAnt.html -->
+<project name="3DES" basedir="." default="main">
+	<property name="src.dir" value="src/"/>
+	<property name="build.dir" value="build/"/>
+	<property name="classes.dir" value="build/classes"/>
+	<property name="jar.dir" value="build/lib"/>
+	<property name="MainClass" value="com.polytech.security.SqueletonTripleDES"/>
+	<property name="extlib.dir" value="lib/"/>
+	<path id="classpath">
+		<fileset dir="${extlib.dir}" includes="**/*.jar"/>
+	</path>
+    <!-- Using https://ant.apache.org/manual/Tasks/manifestclasspath.html because or else it wont work
+    https://stackoverflow.com/questions/1190646/ant-jar-files-and-class-path-oh-my -->
+	<manifestclasspath property="jar.classpath" jarfile="${jar.dir}/${ant.project.name}.jar">
+    		<classpath refid="classpath"/>
+	</manifestclasspath>
+
+    	<target name="clean">
+        	<delete dir="${build.dir}"/>
+   	 </target>
+
+    	<target name="compile">
+        	<mkdir dir="${classes.dir}"/>
+        	<javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"/>
+    	</target>
+
+    	<target name="jar" depends="compile">
+        	<mkdir dir="${jar.dir}"/>
+        	<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
+            		<manifest>
+                		<attribute name="Main-Class" value="${MainClass}"/>
+				        <attribute name="Class-Path" value="${jar.classpath}"/>
+            		</manifest>
+        	</jar>
+    	</target>
+    	<target name="run" depends="jar">
+        	<java jar="${jar.dir}/$ant.project.name.jar" fork="true"/>
+    	</target>
+	<target name="clean-build" depends="clean,jar"/>
+	<target name="main" depends="clean,run"/>
+</project>
