@@ -16,8 +16,8 @@ public class Asymetric{
 		// INITIALIZATION
 		
 		// load the bouncycastle provider
-		//Provider prov = new org.bouncycastle.jce.provider.BouncyCastleProvider();
-		//Security.addProvider(prov);
+		Provider prov = new org.bouncycastle.jce.provider.BouncyCastleProvider();
+		Security.addProvider(prov);
 
 		// create two new entity
 		Entity Alice = new Entity();
