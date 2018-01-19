@@ -25,7 +25,7 @@ SubModule RSA
 ```
 ./gradlew :RSA:run -PappArgs="['res/clearText.txt', 'res/signedText.txt', 'res/encryptedText.txt','res/decryptedText.txt']"
 ```
-# 3 Mixed-Cipher
+# 3 Secure session key exchange 
 SubModule BobAndAlice
 ```
 ./gradlew :BobAndAlice:run -PappArgs="['res/aliceMessage.txt', 'res/bobReceivedMessage.txt']"
